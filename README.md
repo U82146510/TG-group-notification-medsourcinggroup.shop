@@ -14,14 +14,13 @@
 
 3. Create a `.env` file with your bot token and group ID:
    BOT_TOKEN=your_telegram_bot_token
-   GROUP_ID=@yourgroupid_or_chatid
+   GROUP_ID= your_group_id
 
 4. Start the bot with ts-node
-   npx ts-node src/index.ts
+   cd src/bot
+   ts-node bot.ts
 
-   > Make sure your tsconfig.json includes "module": "ESNext" and "moduleResolution": "node"
 
----
 
 🧠 Bot Flow Overview
 
