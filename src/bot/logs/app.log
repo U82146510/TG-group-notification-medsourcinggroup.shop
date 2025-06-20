@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {"ctx":{"api":{"config":{},"raw":{},"token":"7664776836:AAE4-2kZFPZmDeGk4YRaRCqWsR78bgCeylI"},"match":"","me":{"can_connect_to_business":false,"can_join_groups":true,"can_read_all_group_messages":false,"first_name":"U821466-321_bot","has_main_web_app":false,"id":7664776836,"is_bot":true,"supports_inline_queries":false,"username":"U821466_bot"},"update":{"message":{"chat":{"first_name":"MR. White","id":7580426932,"type":"private","username":"mr_white99999"},"date":1750332475,"entities":[{"length":6,"offset":0,"type":"bot_command"}],"from":{"first_name":"MR. White","id":7580426932,"is_bot":false,"language_code":"en","username":"mr_white99999"},"message_id":1,"text":"/start"},"update_id":420908991}},"error":{"description":"Bad Request: message can't be edited","error_code":400,"method":"editMessageText","name":"GrammyError","ok":false,"parameters":{},"payload":{"chat_id":7580426932,"message_id":1,"parse_mode":"Markdown","reply_markup":{"inline_keyboard":[[{"callback_data":"set_msg","text":"Set Message"}],[{"callback_data":"set_time","text":"Set Time"}],[]]},"text":"Welcome to main Menu:"}},"level":"error","name":"BotError","timestamp":"2025-06-19T11:27:55.596Z"}
 {"description":"Bad Request: chat not found","error_code":400,"level":"error","method":"sendMessage","name":"GrammyError","ok":false,"parameters":{},"payload":{"chat_id":4880467474,"text":"this is a test"},"timestamp":"2025-06-19T20:14:43.349Z"}
 {"description":"Bad Request: chat not found","error_code":400,"level":"error","method":"sendMessage","name":"GrammyError","ok":false,"parameters":{},"payload":{"chat_id":4880467474,"text":"this is a test"},"timestamp":"2025-06-19T20:14:45.475Z"}
@@ -17,3 +18,6 @@
 {"level":"debug","message":"Failed to delete message ","timestamp":"2025-06-20T22:43:52.875Z"}
 {"level":"debug","message":"Failed to delete message ","timestamp":"2025-06-20T22:44:57.490Z"}
 {"level":"error","timestamp":"2025-06-20T23:09:41.132Z"}
+=======
+
+>>>>>>> 3b8c3a9f253a583485fd2ba582b40d4722555506
