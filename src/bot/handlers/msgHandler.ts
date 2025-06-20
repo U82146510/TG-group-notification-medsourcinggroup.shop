@@ -1,79 +1,143 @@
-import { Bot,Context } from "grammy";
+import { Bot, Context, InlineKeyboard } from "grammy";
 import { logger } from "../logger/logger.ts";
-import {deleteCachedMessages} from '../utils/clean.ts';
-import fs from 'fs';
+import { deleteCachedMessages } from "../utils/clean.ts";
 
-const UserState = new Map<number,string>();
-const UserStateFlow = new Map<string,number[]>();
-export function registerMessagHandler(bot:Bot<Context>){
-    bot.callbackQuery('set_msg',async(ctx:Context)=>{
-        try {
-            const userId:number = Number(ctx.from?.id);
-            if(!userId) return;
-            const msg = await ctx.reply("Please set your message now:");
-            UserState.set(userId, "await_msg");
-            UserStateFlow.set(`set_msg_${userId}`, [msg.message_id]); 
-        } catch (error) {
-            logger.error(error)
-        }
+// Core state
+const UserState = new Map<number, string>();
+const UserStateFlow = new Map<string, number[]>();
+const TimeSelection = new Map<number, { hour?: number; minute?: number }>();
+
+export function registerMessagHandler(bot: Bot<Context>) {
+
+  bot.callbackQuery("set_time", async (ctx) => {
+    try {
+      const userId = Number(ctx.from?.id);
+      if (!userId) return;
+
+      await clearUserFlow(ctx, userId);
+
+      const keyboard = new InlineKeyboard();
+      for (let i = 0; i < 24; i++) {
+        const padded = i.toString().padStart(2, "0");
+        keyboard.text(padded, `pick_hour_${padded}`);
+        if ((i + 1) % 6 === 0) keyboard.row();
+      }
+
+      const msg = await ctx.reply("🕐 Pick an hour:", { reply_markup: keyboard });
+
+      trackUserMessage(userId, msg.message_id);
+      UserState.set(userId, "picking_hour");
+    } catch (error) {
+      logger.error(error);
+    }
+  });
+
+  // ⌚ Hour Selected → Show Minutes
+  bot.callbackQuery(/^pick_hour_\d{2}$/, async (ctx) => {
+    const userId = Number(ctx.from?.id);
+    if (!userId) return;
+
+    const hour = parseInt(ctx.callbackQuery.data.split("_")[2]);
+    TimeSelection.set(userId, { hour });
+
+    const keyboard = new InlineKeyboard();
+    for (let i = 0; i < 60; i += 15) {
+      const padded = i.toString().padStart(2, "0");
+      keyboard.text(padded, `pick_minute_${padded}`);
+      if ((i + 1) % 4 === 0) keyboard.row();
+    }
+
+    await ctx.editMessageText(`✅ Hour selected: ${hour}\nNow pick minutes:`, {
+      reply_markup: keyboard,
     });
 
-    bot.callbackQuery('set_time',async(ctx:Context)=>{
-        try {
-            const userId:number = Number(ctx.from?.id);
-            if(!userId) return;
-            const ids = UserStateFlow.get(`set_msg_${userId}`);
-            if(!ids) return;
-            await deleteCachedMessages(ctx,ids)
-            UserState.delete(userId);
-            const msg = await ctx.reply("Please set you time:");
-            UserState.set(userId,"await_time");
-        } catch (error) {
-            logger.error(error)
-        }
-    });
+    UserState.set(userId, "picking_minute");
+  });
 
-    bot.callbackQuery('set_group',async(ctx:Context)=>{
-        try {
-            const userId:number = Number(ctx.from?.id);
-            if(!userId) return;
-            const msg = await ctx.reply("Please set group ID:");
-            UserState.set(userId,"await_group");
-        } catch (error) {
-            logger.error(error)
-        }
-    });
+  // ✅ Final Minute Selected → Done
+  bot.callbackQuery(/^pick_minute_\d{2}$/, async (ctx) => {
+    const userId = Number(ctx.from?.id);
+    if (!userId) return;
 
-    bot.on('message:text',async(ctx:Context)=>{
-        const userId:number = Number(ctx.from?.id);
-        const typeInput = UserState.get(userId);
-        const userInputId = ctx.message?.message_id;
-        
-        if(typeInput==='await_time'){
-            if (typeof userInputId !== 'number') return; 
-            const ids = UserStateFlow.get(`set_msg_${userId}`);
-            if (ids) {
-                await deleteCachedMessages(ctx, [...ids, userInputId]); // delete all prompts + user input
-                UserStateFlow.delete(`set_msg_${userId}`);
-            }
-            UserState.delete(userId);
-            console.log(ctx.message?.text)
-            ctx.reply('time set');
-        }
-        if(typeInput==='await_msg'){
-            UserState.delete(userId);
-            console.log(ctx.message?.text);
+    const minute = parseInt(ctx.callbackQuery.data.split("_")[2]);
+    const timeData = TimeSelection.get(userId);
+    if (!timeData?.hour) return ctx.reply("❌ Hour not selected.");
 
-            const msg = await ctx.reply('msg set');
-            const key = `set_msg_${userId}`;
-            const current = UserStateFlow.get(key) ?? [];
-            current.push(msg.message_id);
-            UserStateFlow.set(key, current);
-        }
-        if(typeInput==='await_group'){
-            UserState.delete(userId);
-            console.log(ctx.message?.text)
-            ctx.reply('group set');
-        }
-    });
+    const finalTime = `${timeData.hour.toString().padStart(2, "0")}:${minute
+      .toString()
+      .padStart(2, "0")}`;
+
+    await ctx.editMessageText(`✅ Time set: ${finalTime}`);
+
+    TimeSelection.delete(userId);
+    UserState.delete(userId);
+    UserStateFlow.delete(`flow_${userId}`);
+  });
+
+  // 💬 General message input handler
+  bot.on("message:text", async (ctx) => {
+    const userId = Number(ctx.from?.id);
+    const state = UserState.get(userId);
+    const msgId = ctx.message?.message_id;
+    if (!msgId) return;
+
+    if (state === "await_msg") {
+      await clearUserFlow(ctx, userId, msgId);
+      console.log("User message:", ctx.message.text);
+      const msg = await ctx.reply("📨 Message set.");
+      trackUserMessage(userId, msg.message_id);
+      UserState.delete(userId);
+    }
+  });
+
+  // 📩 Set custom message manually
+  bot.callbackQuery("set_msg", async (ctx) => {
+    try {
+      const userId = Number(ctx.from?.id);
+      if (!userId) return;
+
+      await clearUserFlow(ctx, userId);
+
+      const msg = await ctx.reply("✉️ Please send your message:");
+      trackUserMessage(userId, msg.message_id);
+      UserState.set(userId, "await_msg");
+    } catch (error) {
+      logger.error(error);
+    }
+  });
+
+  // 🆔 Set group ID
+  bot.callbackQuery("delete_all", async (ctx) => {
+    try {
+      const userId = Number(ctx.from?.id);
+      if (!userId) return;
+
+      await clearUserFlow(ctx, userId);
+
+      const msg = await ctx.reply("🆔 Please send the Group ID:");
+      trackUserMessage(userId, msg.message_id);
+      UserState.set(userId, "await_group");
+    } catch (error) {
+      logger.error(error);
+    }
+  });
+}
+
+
+
+function trackUserMessage(userId: number, msgId: number) {
+  const key = `flow_${userId}`;
+  const current = UserStateFlow.get(key) ?? [];
+  current.push(msgId);
+  UserStateFlow.set(key, current);
+}
+
+async function clearUserFlow(ctx: Context, userId: number, newMsgId?: number) {
+  const key = `flow_${userId}`;
+  const ids = UserStateFlow.get(key) ?? [];
+  if (newMsgId) ids.push(newMsgId);
+  if (ids.length > 0) {
+    await deleteCachedMessages(ctx, ids);
+    UserStateFlow.delete(key);
+  }
 }
