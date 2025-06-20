@@ -18,7 +18,7 @@ if (!group_id) {
 
 export async function sendMessageToGroup(msg:string){
     try {
-       await bot.api.sendMessage(group_id as string,msg)
+       await bot.api.sendMessage(-Number(group_id) ,msg)
     } catch (error) {
         logger.error(error);
     }
