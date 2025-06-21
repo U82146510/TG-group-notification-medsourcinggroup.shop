@@ -14,7 +14,7 @@
 
 3. Create a `.env` file with your bot token and group ID:
    BOT_TOKEN=your_telegram_bot_token
-   GROUP_ID= your_group_id
+   group = your_group_id
 
 4. Start the bot with ts-node
    cd src/bot
