@@ -1,7 +1,8 @@
 import { Bot, Context, InlineKeyboard } from "grammy";
 import { logger } from "../logger/logger.ts";
 import { deleteCachedMessages } from "../utils/clean.ts";
-import {startAllJobs,stopAllJobs} from '../services/cronJob.ts';
+import {startAllJobs,stopAllJobs,buildMessages} from '../services/cronJob.ts';
+
 
 //Container of all messages
 
@@ -11,8 +12,8 @@ interface msgForm {
     day:string;
 };
 
-const db = new Array<Partial<msgForm>>();
-const setData:Partial<msgForm> = {} 
+const db = new Array<msgForm>();
+const setData:msgForm = {msg:'',time:'',day:''} 
 
 // Core state
 const UserState = new Map<number, string>();
@@ -189,7 +190,7 @@ export function registerMessagHandler(bot: Bot<Context>) {
             }
 
             db.push({ ...setData });
-
+            console.log(db)
             const msg = await ctx.reply(
             `✅ Schedule added successfully!\n\n` +
             `📝 Message: ${setData.msg}\n` +
@@ -263,7 +264,8 @@ export function registerMessagHandler(bot: Bot<Context>) {
       if (!userId) return;
 
       await clearUserFlow(ctx, userId);
-
+      stopAllJobs();
+      buildMessages(db);
       startAllJobs(); // ✅ starts all tracked jobs
 
       const msg = await ctx.reply("▶️ All schedules have been started.");
