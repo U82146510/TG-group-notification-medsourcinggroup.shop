@@ -262,7 +262,7 @@ export function registerMessagHandler(bot: Bot<Context>) {
     try {
       const userId = Number(ctx.from?.id);
       if (!userId) return;
-
+   
       await clearUserFlow(ctx, userId);
       stopAllJobs();
       buildMessages(db);

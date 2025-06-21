@@ -13,8 +13,6 @@ const cronJobs = new Map<number, cron.ScheduledTask>();
 export function buildMessages(db: Array<msgForm>) {
   console.log("🧩 Building messages for:", db);
 
-  cronJobs.clear(); // 🔄 clear previous jobs
-
   db.forEach((input, index) => {
     const { time, day, msg } = input;
 
@@ -23,30 +21,30 @@ export function buildMessages(db: Array<msgForm>) {
       return;
     }
 
-    if (!/^([1-7](-[1-7])?)$/.test(day)) {
+    if (!/^([1-7]|[1-6]-[1-7])$/.test(day)) {
       console.warn(`⛔ Invalid day format: ${day}`);
       return;
     }
-
+    const cronDay = day.replace(/\b7\b/, '0');
     const [hourStr, minuteStr] = time.split(":");
     const hour = parseInt(hourStr, 10);
     const minute = parseInt(minuteStr, 10);
 
-    const cronExpr = `${minute} ${hour} * * ${day}`;
-    console.log(`✅ Scheduling: ${cronExpr}`);
+    const cronExpr = `${minute} ${hour} * * ${cronDay}`;
+    console.log(`✅ Creating cron job: ${cronExpr}`);
 
     try {
       const job = cron.schedule(cronExpr, async () => {
-        console.log(`🚀 Sending scheduled message: "${msg}"`);
+        console.log(`🚀 Running scheduled job [${cronExpr}]`);
         await sendMessageToGroup(msg);
       }, {
-        // @ts-expect-error: TS typing issue
-        scheduled: false,
-      });
+        // @ts-expect-error: scheduled is a valid option at runtime, but not typed 
+        scheduled: false 
+      } );
 
       cronJobs.set(index, job);
     } catch (error) {
-      logger.error(`❌ Failed to schedule [${cronExpr}]`, error);
+      logger.error(`❌ Failed to schedule job at ${cronExpr}`, error);
     }
   });
 }
