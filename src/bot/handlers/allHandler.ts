@@ -248,7 +248,7 @@ export function registerMessagHandler(bot: Bot<Context>) {
             const total = db.length;
             const plural = total === 1 ? "was" : "were";
             const label = total === 1 ? "message" : "messages";
-
+            db.length = 0;
             const msg = await ctx.reply(`🗑️ <b>Total:</b> ${total} ${label} ${plural} deleted.`, {
             parse_mode: "HTML",
             });
