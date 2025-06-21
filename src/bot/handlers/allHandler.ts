@@ -166,28 +166,28 @@ export function registerMessagHandler(bot: Bot<Context>) {
 
    bot.callbackQuery("add", async (ctx) => {
     try {
-            const userId = Number(ctx.from?.id);
-            if (!userId) return;
+        const userId = Number(ctx.from?.id);
+        if (!userId) return;
 
-            await clearUserFlow(ctx, userId);
+        await clearUserFlow(ctx, userId);
 
-            if (!setData.day) {
-            const msg = await ctx.reply("📅 Please set the day(s) of the week first.");
-            trackUserMessage(userId, msg.message_id);
-            return;
-            }
+        if (!setData.day) {
+          const msg = await ctx.reply("📅 Please set the day(s) of the week first.");
+          trackUserMessage(userId, msg.message_id);
+          return;
+        }
 
-            if (!setData.time) {
-            const msg = await ctx.reply("⏰ Please set the time before adding.");
-            trackUserMessage(userId, msg.message_id);
-            return;
-            }
+        if (!setData.time) {
+          const msg = await ctx.reply("⏰ Please set the time before adding.");
+          trackUserMessage(userId, msg.message_id);
+          return;
+        }
 
-            if (!setData.msg) {
-            const msg = await ctx.reply("📝 Please provide the message content.");
-            trackUserMessage(userId, msg.message_id);
-            return;
-            }
+        if (!setData.msg) {
+          const msg = await ctx.reply("📝 Please provide the message content.");
+          trackUserMessage(userId, msg.message_id);
+          return;
+        }
 
             db.push({ ...setData });
             console.log(db)
@@ -259,20 +259,27 @@ export function registerMessagHandler(bot: Bot<Context>) {
     });
     
     bot.callbackQuery("start", async (ctx: Context) => {
-    try {
-      const userId = Number(ctx.from?.id);
-      if (!userId) return;
-   
-      await clearUserFlow(ctx, userId);
-      stopAllJobs();
-      buildMessages(db);
-      startAllJobs(); // ✅ starts all tracked jobs
+      try {
+        const userId = Number(ctx.from?.id);
+        if (!userId) return;
+        
+        await clearUserFlow(ctx, userId);
 
-      const msg = await ctx.reply("▶️ All schedules have been started.");
-      trackUserMessage(userId, msg.message_id);
-    } catch (error) {
-      logger.error(error);
-    }
+        if (db.length === 0) {
+          const msg = await ctx.reply("📭 No schedules to start. Please add one first.");
+          trackUserMessage(userId, msg.message_id);
+          return;
+        }
+
+        stopAllJobs();
+        buildMessages(db);
+        startAllJobs(); // ✅ starts all tracked jobs
+
+        const msg = await ctx.reply("▶️ All schedules have been started.");
+        trackUserMessage(userId, msg.message_id);
+      } catch (error) {
+        logger.error(error);
+      }
   });
 
   bot.callbackQuery("stop", async (ctx: Context) => {
