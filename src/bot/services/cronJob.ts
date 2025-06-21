@@ -25,7 +25,10 @@ export function buildMessages(db: Array<msgForm>) {
       console.warn(`⛔ Invalid day format: ${day}`);
       return;
     }
-    const cronDay = day.replace(/\b7\b/, '0');
+    const cronDay = day
+  .split(',')
+  .map(part => part.replace(/\b7\b/g, '0'))
+  .join(',');
     const [hourStr, minuteStr] = time.split(":");
     const hour = parseInt(hourStr, 10);
     const minute = parseInt(minuteStr, 10);
