@@ -26,6 +26,8 @@
 
 📍 Step-by-step sequence:
 
+VERY VERY IMPORTANT: Add all messages before pressing start.
+
 1. Start the bot in Telegram by typing /start or opening the main menu.
 2. Use buttons to define your scheduled message:
 
