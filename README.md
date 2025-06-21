@@ -14,7 +14,7 @@
 
 3. Create a `.env` file with your bot token and group ID:
    BOT_TOKEN=your_telegram_bot_token
-   GROUP_ID= your_group_id
+   group = your_group_id
 
 4. Start the bot with ts-node
    cd src/bot
@@ -25,6 +25,8 @@
 🧠 Bot Flow Overview
 
 📍 Step-by-step sequence:
+
+VERY VERY IMPORTANT: Add all messages before pressing start.
 
 1. Start the bot in Telegram by typing /start or opening the main menu.
 2. Use buttons to define your scheduled message:
