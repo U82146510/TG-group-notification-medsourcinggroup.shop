@@ -280,7 +280,7 @@ export function registerMessagHandler(bot: Bot<Context>) {
       } catch (error) {
         logger.error(error);
       }
-  });
+   });
 
   bot.callbackQuery("stop", async (ctx: Context) => {
     try {
