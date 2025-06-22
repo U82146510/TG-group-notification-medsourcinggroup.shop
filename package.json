@@ -4,7 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "ts-node src/bot/bot.ts"
+    "start": "ts-node-esm src/bot/bot.ts"
   },
   "keywords": [],
   "author": "",
@@ -14,10 +14,11 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
+    "typescript": "^5.8.3",
+    "ts-node": "^10.9.2",
     "dotenv": "^16.5.0",
     "grammy": "^1.36.3",
     "node-cron": "^4.1.0",
-    "ts-node": "^10.9.2",
     "winston": "^3.17.0"
   }
 }
