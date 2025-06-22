@@ -13,7 +13,7 @@
    npm install
 
 3. Create a `.env` file with your bot token and group ID:
-   BOT_TOKEN=your_telegram_bot_token
+   bot_token=your_telegram_bot_token
    group = your_group_id
 
 4. Start the bot with ts-node
