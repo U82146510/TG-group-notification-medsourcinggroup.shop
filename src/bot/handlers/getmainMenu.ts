@@ -9,5 +9,6 @@ export function getMainMenu(): InlineKeyboard {
     .text('▶️ Start All', 'start')
     .text('⏸️ Stop All', 'stop').row()
     .text('📋 View Schedules', 'all_schedules').row()
-    .text('🗑️ Delete All', 'delete_all').row();
+    .text('🗑️ Delete All', 'delete_all').row()
+    .text('🕒 System Time', 'time').row();
 }

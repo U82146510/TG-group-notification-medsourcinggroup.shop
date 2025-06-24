@@ -15,11 +15,10 @@ const group_id = process.env.group;
 if (!group_id) {
   throw new Error("missing group id");
 }
-
+// -1002324234704
 export async function sendMessageToGroup(msg:string){
     try {
-        console.log('test')
-        await bot.api.sendMessage(-Number(group_id) ,msg)
+        await bot.api.sendMessage(-1002324234704 ,msg)
     } catch (error) {
         logger.error(error);
     }

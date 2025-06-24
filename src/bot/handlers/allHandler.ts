@@ -297,6 +297,22 @@ export function registerMessagHandler(bot: Bot<Context>) {
       logger.error(error);
     }
   });
+
+  bot.callbackQuery('time',async(ctx:Context)=>{
+    await ctx.answerCallbackQuery();
+    const userId = Number(ctx.from?.id);
+    if(!userId) return;
+    const date = new Date(Date.now()).toString()
+
+    try {
+      await clearUserFlow(ctx, userId);
+      const msg = await ctx.reply(`System time: ${date}`);
+      trackUserMessage(userId, msg.message_id);
+    } catch (error) {
+      logger.error(error)
+    }
+    
+  });
 }
 
 
