@@ -61,7 +61,3 @@ To define on which days your scheduled message should run, the bot expects a num
 - 1-5 → Monday to Friday
 - 6-7 → Saturday and Sunday
 
-🛑 Notes
-
-- This bot stores all schedules in memory — if restarted, they are lost unless persisted
-- For persistent usage, MongoDB or file-based DB can be added easily
